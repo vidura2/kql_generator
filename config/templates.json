@@ -1,0 +1,7 @@
+{
+  "default": {
+    "time_range": "1d",
+    "order_by": "Timestamp desc",
+    "limit": 50
+  }
+}

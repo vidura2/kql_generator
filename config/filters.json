@@ -1,0 +1,72 @@
+{
+  "powershell": {
+    "keywords": ["powershell", "pwsh"],
+    "tables": ["DeviceProcessEvents"],
+    "expression": "tolower(FileName) has \"powershell\""
+  },
+  "cmd": {
+    "keywords": ["cmd", "command prompt"],
+    "tables": ["DeviceProcessEvents"],
+    "expression": "tolower(FileName) == \"cmd.exe\""
+  },
+  "encoded": {
+    "keywords": ["encoded", "base64", "enc"],
+    "tables": ["DeviceProcessEvents"],
+    "expression": "tolower(ProcessCommandLine) has_any (\"-enc\", \"frombase64string\")"
+  },
+  "failed_login": {
+    "keywords": ["failed login", "logon failure", "authentication failure"],
+    "tables": ["DeviceLogonEvents", "IdentityLogonEvents"],
+    "expression": "ActionType has \"LogonFailed\" or ResultType !in (\"0\", \"Success\")"
+  },
+  "successful_login": {
+    "keywords": ["successful login", "logon success", "valid login"],
+    "tables": ["DeviceLogonEvents", "IdentityLogonEvents"],
+    "expression": "ActionType has \"LogonSuccess\" or ResultType in (\"0\", \"Success\")"
+  },
+  "rdp": {
+    "keywords": ["rdp", "remote desktop", "interactive remote"],
+    "tables": ["DeviceLogonEvents"],
+    "expression": "LogonType =~ \"RemoteInteractive\""
+  },
+  "external_ip": {
+    "keywords": ["external ip", "internet ip", "public ip"],
+    "tables": ["DeviceNetworkEvents", "DeviceLogonEvents", "IdentityLogonEvents"],
+    "expression": "not(ipv4_is_private(RemoteIP)) or not(ipv4_is_private(IPAddress))"
+  },
+  "suspicious_port": {
+    "keywords": ["suspicious port", "weird port", "high port"],
+    "tables": ["DeviceNetworkEvents"],
+    "expression": "RemotePort in (4444, 1337, 3389, 5985, 5986)"
+  },
+  "phishing": {
+    "keywords": ["phishing", "credential harvest", "fake email"],
+    "tables": ["EmailEvents", "UrlClickEvents"],
+    "expression": "ThreatTypes has \"Phish\" or Subject has_any (\"password\", \"verify\", \"urgent\")"
+  },
+  "malware_email": {
+    "keywords": ["malware email", "malicious attachment", "infected email"],
+    "tables": ["EmailEvents"],
+    "expression": "ThreatTypes has \"Malware\""
+  },
+  "url_click": {
+    "keywords": ["url click", "clicked link", "click event"],
+    "tables": ["UrlClickEvents"],
+    "expression": "ActionType has \"Click\""
+  },
+  "file_created": {
+    "keywords": ["file created", "new file", "file write"],
+    "tables": ["DeviceFileEvents"],
+    "expression": "ActionType has \"FileCreated\""
+  },
+  "file_deleted": {
+    "keywords": ["file deleted", "file remove", "delete file"],
+    "tables": ["DeviceFileEvents"],
+    "expression": "ActionType has \"FileDeleted\""
+  },
+  "registry_persistence": {
+    "keywords": ["registry persistence", "run key", "autorun", "startup registry"],
+    "tables": ["DeviceRegistryEvents"],
+    "expression": "RegistryKey has_any (\"\\\\Run\", \"\\\\RunOnce\", \"\\\\CurrentVersion\\\\Run\")"
+  }
+}

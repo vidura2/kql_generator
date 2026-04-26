@@ -1,0 +1,34 @@
+{
+  "DeviceProcessEvents": {
+    "keywords": ["process", "powershell", "cmd", "lolbin", "script", "execution"],
+    "columns": ["Timestamp", "DeviceName", "AccountName", "FileName", "ProcessCommandLine"]
+  },
+  "DeviceLogonEvents": {
+    "keywords": ["logon", "login", "failed login", "successful login", "rdp"],
+    "columns": ["Timestamp", "DeviceName", "AccountName", "LogonType", "ActionType", "RemoteIP"]
+  },
+  "DeviceNetworkEvents": {
+    "keywords": ["network", "connection", "external ip", "port", "suspicious port"],
+    "columns": ["Timestamp", "DeviceName", "RemoteIP", "RemotePort", "Protocol", "InitiatingProcessFileName"]
+  },
+  "EmailEvents": {
+    "keywords": ["email", "phishing", "malware email", "sender", "recipient"],
+    "columns": ["Timestamp", "SenderFromAddress", "RecipientEmailAddress", "Subject", "ThreatTypes"]
+  },
+  "UrlClickEvents": {
+    "keywords": ["url click", "click", "link", "phishing url", "clicked"],
+    "columns": ["Timestamp", "AccountUpn", "Url", "ActionType", "ThreatTypes"]
+  },
+  "IdentityLogonEvents": {
+    "keywords": ["identity", "aad", "failed login", "successful login", "sign in"],
+    "columns": ["Timestamp", "AccountUpn", "Application", "LogonType", "IPAddress", "ResultType"]
+  },
+  "DeviceFileEvents": {
+    "keywords": ["file", "file created", "file deleted", "dropper", "write"],
+    "columns": ["Timestamp", "DeviceName", "ActionType", "FolderPath", "FileName", "SHA256"]
+  },
+  "DeviceRegistryEvents": {
+    "keywords": ["registry", "persistence", "autorun", "run key", "startup key"],
+    "columns": ["Timestamp", "DeviceName", "ActionType", "RegistryKey", "RegistryValueName", "RegistryValueData"]
+  }
+}

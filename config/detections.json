@@ -1,0 +1,116 @@
+{
+  "suspicious_powershell": {
+    "keywords": ["suspicious powershell", "powershell", "encoded", "execution policy bypass"],
+    "table": "DeviceProcessEvents",
+    "time_range": "1d",
+    "filters": [
+      "tolower(FileName) has \"powershell\"",
+      "tolower(ProcessCommandLine) has_any (\"-enc\", \"-encodedcommand\", \"bypass\")"
+    ],
+    "summarize": "Count=count() by DeviceName, AccountName, ProcessCommandLine",
+    "post_filters": ["Count >= 1"],
+    "columns": ["DeviceName", "AccountName", "ProcessCommandLine", "Count", "Timestamp"]
+  },
+  "failed_logon_burst": {
+    "keywords": ["failed login burst", "password spray", "failed login", "logon failures"],
+    "table": "IdentityLogonEvents",
+    "time_range": "1d",
+    "filters": ["ResultType !in (\"0\", \"Success\")"],
+    "summarize": "Failures=count() by AccountUpn, IPAddress, bin(Timestamp, 15m)",
+    "post_filters": ["Failures >= 5"],
+    "columns": ["Timestamp", "AccountUpn", "IPAddress", "Failures"]
+  },
+  "remote_logon": {
+    "keywords": ["remote logon", "rdp", "remote desktop", "interactive remote"],
+    "table": "DeviceLogonEvents",
+    "time_range": "1d",
+    "filters": ["LogonType =~ \"RemoteInteractive\""],
+    "summarize": "Count=count() by DeviceName, AccountName, RemoteIP",
+    "post_filters": ["Count >= 1"],
+    "columns": ["DeviceName", "AccountName", "RemoteIP", "Count", "Timestamp"]
+  },
+  "suspicious_cmd": {
+    "keywords": ["suspicious cmd", "cmd", "command prompt abuse", "cmd.exe"],
+    "table": "DeviceProcessEvents",
+    "time_range": "1d",
+    "filters": [
+      "tolower(FileName) == \"cmd.exe\"",
+      "tolower(ProcessCommandLine) has_any (\"/c\", \"whoami\", \"net user\", \"ipconfig\")"
+    ],
+    "summarize": "Count=count() by DeviceName, AccountName, ProcessCommandLine",
+    "post_filters": ["Count >= 1"],
+    "columns": ["DeviceName", "AccountName", "ProcessCommandLine", "Count", "Timestamp"]
+  },
+  "lolbins": {
+    "keywords": ["lolbins", "living off the land", "certutil", "mshta", "rundll32"],
+    "table": "DeviceProcessEvents",
+    "time_range": "1d",
+    "filters": ["tolower(FileName) in (\"certutil.exe\", \"mshta.exe\", \"rundll32.exe\", \"regsvr32.exe\")"],
+    "summarize": "Count=count() by DeviceName, AccountName, FileName, ProcessCommandLine",
+    "post_filters": ["Count >= 1"],
+    "columns": ["DeviceName", "AccountName", "FileName", "ProcessCommandLine", "Count", "Timestamp"]
+  },
+  "external_network_connections": {
+    "keywords": ["external network connections", "external ip", "internet connection", "outbound"],
+    "table": "DeviceNetworkEvents",
+    "time_range": "1d",
+    "filters": ["not(ipv4_is_private(RemoteIP))"],
+    "summarize": "Count=count() by DeviceName, RemoteIP, RemotePort, InitiatingProcessFileName",
+    "post_filters": ["Count >= 3"],
+    "columns": ["DeviceName", "RemoteIP", "RemotePort", "InitiatingProcessFileName", "Count", "Timestamp"]
+  },
+  "suspicious_ports": {
+    "keywords": ["suspicious ports", "odd port", "port scanning", "high risk port"],
+    "table": "DeviceNetworkEvents",
+    "time_range": "1d",
+    "filters": ["RemotePort in (22, 3389, 4444, 5985, 5986, 1337)"],
+    "summarize": "Count=count() by DeviceName, RemoteIP, RemotePort",
+    "post_filters": ["Count >= 1"],
+    "columns": ["DeviceName", "RemoteIP", "RemotePort", "Count", "Timestamp"]
+  },
+  "phishing_email": {
+    "keywords": ["phishing email", "phishing", "credential email", "suspicious email"],
+    "table": "EmailEvents",
+    "time_range": "1d",
+    "filters": ["ThreatTypes has \"Phish\" or Subject has_any (\"verify\", \"password\", \"urgent\")"],
+    "summarize": "Count=count() by SenderFromAddress, RecipientEmailAddress, Subject",
+    "post_filters": ["Count >= 1"],
+    "columns": ["SenderFromAddress", "RecipientEmailAddress", "Subject", "Count", "Timestamp"]
+  },
+  "malware_email": {
+    "keywords": ["malware email", "malicious attachment", "infected email", "email malware"],
+    "table": "EmailEvents",
+    "time_range": "1d",
+    "filters": ["ThreatTypes has \"Malware\""],
+    "summarize": "Count=count() by SenderFromAddress, RecipientEmailAddress, Subject",
+    "post_filters": ["Count >= 1"],
+    "columns": ["SenderFromAddress", "RecipientEmailAddress", "Subject", "Count", "Timestamp"]
+  },
+  "url_clicks": {
+    "keywords": ["url clicks", "url click", "clicked link", "link click"],
+    "table": "UrlClickEvents",
+    "time_range": "1d",
+    "filters": ["ActionType has \"Click\""],
+    "summarize": "Count=count() by AccountUpn, Url",
+    "post_filters": ["Count >= 1"],
+    "columns": ["AccountUpn", "Url", "Count", "Timestamp"]
+  },
+  "file_creation": {
+    "keywords": ["file creation", "file created", "new file", "drop file"],
+    "table": "DeviceFileEvents",
+    "time_range": "1d",
+    "filters": ["ActionType has \"FileCreated\""],
+    "summarize": "Count=count() by DeviceName, FolderPath, FileName, SHA256",
+    "post_filters": ["Count >= 1"],
+    "columns": ["DeviceName", "FolderPath", "FileName", "SHA256", "Count", "Timestamp"]
+  },
+  "registry_persistence": {
+    "keywords": ["registry persistence", "run key", "autorun", "startup key"],
+    "table": "DeviceRegistryEvents",
+    "time_range": "1d",
+    "filters": ["RegistryKey has_any (\"\\\\Run\", \"\\\\RunOnce\", \"\\\\CurrentVersion\\\\Run\")"],
+    "summarize": "Count=count() by DeviceName, RegistryKey, RegistryValueName, RegistryValueData",
+    "post_filters": ["Count >= 1"],
+    "columns": ["DeviceName", "RegistryKey", "RegistryValueName", "RegistryValueData", "Count", "Timestamp"]
+  }
+}
